@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Frontend</title>
+</head>
+<body>
+    <h1>Value from contract: <span id="value"></span></h1>
+    <input type="text" id="inputValue" placeholder="Enter new value">
+    <button id="setValueButton">Set Value</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+    <script>
+        async function fetchValue() {
+            const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
+            const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with your contract address
+            const abi = [
+                "function getValue() view returns (uint256)",
+                "function setValue(uint256 _value)"
+            ];
+
+            const contract = new ethers.Contract(contractAddress, abi, provider);
+            const value = await contract.getValue();
+            document.getElementById("value").innerText = value.toString();
+        }
+
+        async function setValue() {
+            const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
+            const signer = provider.getSigner();
+            const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with your contract address
+            const abi = [
+                "function getValue() view returns (uint256)",
+                "function setValue(uint256 _value)"
+            ];
+
+            const contract = new ethers.Contract(contractAddress, abi, signer);
+            const inputValue = document.getElementById("inputValue").value;
+            const tx = await contract.setValue(inputValue);
+            await tx.wait();
+
+            fetchValue();
+        }
+
+        document.getElementById("setValueButton").addEventListener("click", setValue);
+
+        fetchValue();
+    </script>
+</body>
+</html>
